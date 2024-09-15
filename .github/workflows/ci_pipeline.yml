@@ -4,32 +4,39 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Fetch all branches and history
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.8'  # Use the version your project requires
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: Fetch and checkout files from feature-model-training
+        run: |
+          git checkout origin/main -- main.py house_data.csv test.py house_test_data.csv
 
-    - name: Run tests
-      run: |
-        pytest test.py
+      - name: Fetch and checkout app.py from feature-api
+        run: |
+          git checkout origin/main -- app.py
 
-    - name: Test Flask App
-      run: |
-        python -m pytest --maxfail=1 --disable-warnings -v
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Train model and generate test data
+        run: |
+          python main.py  # This will train the model using house_data.csv
+
+      - name: Run lint and tests
+        run: |
+          pylint main.py app.py test.py
+          pytest test.py
