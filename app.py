@@ -1,6 +1,7 @@
 """
 This module serves a linear regression model using Flask.
 """
+
 import os
 import pickle
 from flask import Flask, request, jsonify, render_template
@@ -19,12 +20,23 @@ try:
 except (FileNotFoundError, IOError, pickle.UnpicklingError):
     model = None
 
+
 @app.route('/')
 def home_page():
+    """
+    Renders the home page of the web application.
+    """
     return render_template('index.html')
+
 
 @app.route('/predict/', methods=['POST'])
 def predict():
+    """
+    Predicts the price based on input features provided in the POST request.
+
+    Returns:
+        json: The predicted price or an error message.
+    """
     if model is None:
         return jsonify({"error": "Model is not loaded. Train the model first."}), 500
 
@@ -50,6 +62,7 @@ def predict():
 
     except (TypeError, AttributeError):
         return jsonify({"error": "Unexpected error occurred."}), 500
+
 
 if __name__ == "__main__":
     app.run(debug=True)
