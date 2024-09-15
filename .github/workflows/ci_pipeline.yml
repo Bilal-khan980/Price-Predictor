@@ -1,0 +1,57 @@
+name: CI Pipeline
+
+# Trigger this workflow on pushes or pull requests to the repository
+on:
+  push:
+    branches:
+      - dev
+      - staging
+      - main
+  pull_request:
+    branches:
+      - dev
+      - staging
+      - main
+
+jobs:
+  # Job for linting the codebase
+  lint:
+    name: Linting the Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+      
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      
+      - name: Install dependencies
+        run: |
+          pip install flake8
+
+      - name: Run Flake8 Linter
+        run: |
+          flake8 app.py main.py test.py
+
+  # Job for running unit tests
+  test:
+    name: Running Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+      
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run Unit Tests
+        run: |
+          python test.py
