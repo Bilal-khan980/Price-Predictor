@@ -1,45 +1,37 @@
-import requests
-import subprocess
-import time
-import signal
-import os
+import pytest
+from app import app
+import json
 
-url = 'http://localhost:5000/predict'
+@pytest.fixture
+def client():
+    """Fixture to configure the test client."""
+    app.config['TESTING'] = True
+    with app.test_client() as client:
+        yield client
 
-def start_server():
-    # Start the Flask server as a background process
-    process = subprocess.Popen(['flask', 'run', '--host=0.0.0.0', '--port=5000'], 
-                               stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
-    time.sleep(5)  # Wait for server to start
-    return process
+def test_home(client):
+    """Test if the home page loads correctly."""
+    response = client.get('/')
+    assert response.status_code == 200
+    assert b'<h1>House Price Predictor</h1>' in response.data
+    assert b'Predict Price' in response.data
 
-def stop_server(process):
-    # Stop the Flask server
-    os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+def test_predict_valid(client):
+    """Test the /predict route with valid inputs."""
+    response = client.post('/predict', data={
+        'sqft': '1500',
+        'bedrooms': '3',
+        'bathrooms': '2'
+    })
+    assert response.status_code == 200
+    assert b'Predicted House Price' in response.data
 
-def test_predict():
-    # Start the server
-    process = start_server()
-    
-    try:
-        # Input data for testing
-        data = {
-            'sqft': 1500,
-            'bedrooms': 3,
-            'bathrooms': 2
-        }
-
-        # Sending POST request
-        response = requests.post(url, data=data)
-
-        # Assert that the response status code is 200
-        assert response.status_code == 200
-
-        # Assert that the response contains the predicted price
-        assert "Predicted House Price" in response.text
-    finally:
-        # Stop the server after the test
-        stop_server(process)
-
-if __name__ == "__main__":
-    test_predict()
+def test_predict_invalid(client):
+    """Test the /predict route with invalid inputs."""
+    response = client.post('/predict', data={
+        'sqft': 'invalid_value',
+        'bedrooms': '3',
+        'bathrooms': '2'
+    })
+    assert response.status_code == 200  # Flask should return 200, but with an error message
+    assert b'error' in response.data

@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 import joblib
-import numpy as np
-
+import pandas as pd  # Import pandas to handle data formatting
 
 app = Flask(__name__)
 
@@ -17,9 +16,14 @@ def home():
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
+        # Extract features from the form
         features = [float(x) for x in request.form.values()]
-        final_features = [np.array(features)]
+        
+        # Ensure the input is formatted correctly as a DataFrame
+        columns = ['sqft', 'bedrooms', 'bathrooms']
+        final_features = pd.DataFrame([features], columns=columns)
 
+        # Make prediction
         prediction = model.predict(final_features)
 
         output = round(prediction[0], 2)
