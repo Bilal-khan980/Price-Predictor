@@ -6,7 +6,7 @@ import pandas as pd
 from sklearn.linear_model import LinearRegression
 
 MODEL_SAVE_PATH = 'trained_model.pkl'
-DATA_FILE_PATH = 'housing_data.csv'
+DATA_FILE_PATH = 'house_data.csv'
 
 
 def fetch_data(file_path):
