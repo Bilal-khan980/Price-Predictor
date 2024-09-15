@@ -69,11 +69,11 @@
         <h1>House Price Prediction</h1>
         <form id="predictionForm">
             <label for="size">House Size (sq ft):</label>
-            <input type="number" id="size" name="size" required>
+            <input type="number" id="size" name="size" step="0.01" required>
             <label for="bedrooms">Number of Bedrooms:</label>
-            <input type="number" id="bedrooms" name="bedrooms" required>
+            <input type="number" id="bedrooms" name="bedrooms" step="1" required>
             <label for="bathrooms">Number of Bathrooms:</label>
-            <input type="number" id="bathrooms" name="bathrooms" required>
+            <input type="number" id="bathrooms" name="bathrooms" step="1" required>
             <button type="submit">Predict Price</button>
         </form>
         <p id="result"></p>
@@ -87,18 +87,28 @@
                 const bedrooms = document.getElementById('bedrooms').value;
                 const bathrooms = document.getElementById('bathrooms').value;
                 
-                const response = await fetch('/predict_price/', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        size: size,
-                        bedrooms: bedrooms,
-                        bathrooms: bathrooms
-                    })
-                });
-                
-                const result = await response.json();
-                document.getElementById('result').textContent = `Predicted House Price: ${result.predicted_price}`;
+                try {
+                    const response = await fetch('/predict/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            size: size,
+                            bedrooms: bedrooms,
+                            bathrooms: bathrooms
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    if (response.ok) {
+                        // Round to 2 decimal places
+                        const formattedPrice = result.predicted_price.toFixed(2);
+                        document.getElementById('result').textContent = `Predicted House Price: $${formattedPrice}`;
+                    } else {
+                        document.getElementById('result').textContent = `Error: ${result.error}`;
+                    }
+                } catch (error) {
+                    document.getElementById('result').textContent = `An unexpected error occurred: ${error.message}`;
+                }
             };
         });
     </script>

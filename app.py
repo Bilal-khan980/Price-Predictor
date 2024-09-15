@@ -1,73 +1,55 @@
 """
-Module for serving the linear regression model using Flask.
+This module serves a linear regression model using Flask.
 """
-import os  # Standard library imports
+import os
 import pickle
 from flask import Flask, request, jsonify, render_template
-import numpy as np  # Third-party imports
+import numpy as np
 
 app = Flask(__name__)
 
-# Define the path for the saved model
-MODEL_PATH = 'model.pkl'
+MODEL_FILE_PATH = 'trained_model.pkl'
 
-# Load the trained model
 try:
-    if os.path.exists(MODEL_PATH):
-        with open(MODEL_PATH, 'rb') as file:
-            MODEL = pickle.load(file)
+    if os.path.exists(MODEL_FILE_PATH):
+        with open(MODEL_FILE_PATH, 'rb') as model_file:
+            model = pickle.load(model_file)
     else:
-        raise FileNotFoundError(
-            "Model not found! Please train the model by running 'main.py' first."
-        )
-except (FileNotFoundError, IOError, pickle.UnpicklingError) as e:
-    MODEL = None
-    print(f"Error loading model: {e}")
+        raise FileNotFoundError("Model file not found. Please run 'main.py' to train the model.")
+except (FileNotFoundError, IOError, pickle.UnpicklingError):
+    model = None
 
 @app.route('/')
-def home():
-    """
-    Render the home page.
-    """
+def home_page():
     return render_template('index.html')
 
-@app.route('/predict_price/', methods=['POST'])
-def predict_price():
-    """
-    Predict house price based on features provided in the POST request.
-
-    Returns:
-        json: Predicted price or error message.
-    """
-    if not MODEL:
-        return jsonify({"error": "Model not loaded. Please train the model first."}), 500
+@app.route('/predict/', methods=['POST'])
+def predict():
+    if model is None:
+        return jsonify({"error": "Model is not loaded. Train the model first."}), 500
 
     try:
-        # Get the house details from the POST request data
-        data = request.get_json()
+        request_data = request.get_json()
+        feature_size = float(request_data.get('size', 0))
+        feature_bedrooms = int(request_data.get('bedrooms', 0))
+        feature_bathrooms = int(request_data.get('bathrooms', 0))
 
-        # Extract and validate features from the request
-        size = float(data.get('size', 0))
-        bedrooms = int(data.get('bedrooms', 0))
-        bathrooms = int(data.get('bathrooms', 0))
-
-        # Ensure valid feature values
-        if size <= 0 or bedrooms < 0 or bathrooms < 0:
+        if feature_size <= 0 or feature_bedrooms < 0 or feature_bathrooms < 0:
             raise ValueError("Invalid input values for size, bedrooms, or bathrooms.")
 
-        features = np.array([[size, bedrooms, bathrooms]])
+        feature_array = np.array([[feature_size, feature_bedrooms, feature_bathrooms]])
+        prediction = model.predict(feature_array)[0]
 
-        # Make prediction
-        predicted_price = MODEL.predict(features)[0]
+        return jsonify({"predicted_price": prediction})
 
-        return jsonify({"predicted_price": predicted_price})
+    except (ValueError, KeyError):
+        return jsonify({"error": "Invalid input values."}), 400
 
-    except (ValueError, KeyError) as e:
-        return jsonify({"error": f"Value error: {str(e)}"}), 400
+    except (FileNotFoundError, IOError, pickle.UnpicklingError):
+        return jsonify({"error": "Model loading error."}), 500
 
-    except (FileNotFoundError, IOError, pickle.UnpicklingError) as e:
-        return jsonify({"error": f"Model error: {str(e)}"}), 500
+    except (TypeError, AttributeError):
+        return jsonify({"error": "Unexpected error occurred."}), 500
 
-    except (TypeError, AttributeError) as e:
-        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
-    
+if __name__ == "__main__":
+    app.run(debug=True)
