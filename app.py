@@ -24,7 +24,7 @@ def predict():
 
         output = round(prediction[0], 2)
         return render_template('index.html',
-                               prediction_text=f'Predicted House Price: ${output}')
+                    prediction_text=f'Predicted House Price: ${output}')
 
     except Exception as e:
         return jsonify({'error': str(e)})
