@@ -1,6 +1,5 @@
 name: CI Pipeline
 
-# Trigger this workflow on pushes or pull requests to the repository
 on:
   push:
     branches:
@@ -14,7 +13,6 @@ on:
       - main
 
 jobs:
-  # Job for linting the codebase
   lint:
     name: Linting the Code
     runs-on: ubuntu-latest
@@ -33,9 +31,8 @@ jobs:
 
       - name: Run Flake8 Linter
         run: |
-          flake8 app.py main.py test.py
+          flake8 app.py main.py test.py --max-line-length=79
 
-  # Job for running unit tests
   test:
     name: Running Unit Tests
     runs-on: ubuntu-latest
