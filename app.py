@@ -70,3 +70,4 @@ def predict_price():
 
     except (TypeError, AttributeError) as e:
         return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
+        
