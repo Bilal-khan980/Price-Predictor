@@ -1,37 +1,66 @@
-import pytest
-from app import app
-import json
+"""
+Module for evaluating the linear regression model and running tests.
+"""
+import os
+import pickle
+import pandas as pd
+from sklearn.metrics import mean_squared_error, r2_score
 
-@pytest.fixture
-def client():
-    """Fixture to configure the test client."""
-    app.config['TESTING'] = True
-    with app.test_client() as client:
-        yield client
+MODEL_PATH = 'model.pkl'
+TEST_CSV_FILE_PATH = 'house_test_data.csv'
 
-def test_home(client):
-    """Test if the home page loads correctly."""
-    response = client.get('/')
-    assert response.status_code == 200
-    assert b'<h1>House Price Predictor</h1>' in response.data
-    assert b'Predict Price' in response.data
+def load_data_from_csv(file_path):
+    """
+    Load dataset from CSV.
+    Args:
+        file_path (str): The path to the CSV file.
+    Returns:
+        tuple: A tuple containing the house sizes and prices.
+    """
+    data = pd.read_csv(file_path)
+    house_sizes = data[['Size', 'Bedrooms', 'Bathrooms']].values
+    house_prices = data['Price'].values
+    return house_sizes, house_prices
 
-def test_predict_valid(client):
-    """Test the /predict route with valid inputs."""
-    response = client.post('/predict', data={
-        'sqft': '1500',
-        'bedrooms': '3',
-        'bathrooms': '2'
-    })
-    assert response.status_code == 200
-    assert b'Predicted House Price' in response.data
+def evaluate_model():
+    """
+    Evaluate the model's performance on test data.
+    Raises:
+        FileNotFoundError: If the model file does not exist.
+    """
+    if not os.path.exists(MODEL_PATH):
+        raise FileNotFoundError(
+            "Model not found! Please train the model by running 'main.py' first."
+        )
+    with open(MODEL_PATH, 'rb') as file:
+        model = pickle.load(file)
+    house_sizes, house_prices = load_data_from_csv(TEST_CSV_FILE_PATH)
+    predictions = model.predict(house_sizes)
+    mse = mean_squared_error(house_prices, predictions)
+    r2 = r2_score(house_prices, predictions)
+    print("Model evaluation completed.")
+    print(f"Mean Squared Error: {mse}")
+    print(f"R2 Score: {r2}")
+    return mse, r2
 
-def test_predict_invalid(client):
-    """Test the /predict route with invalid inputs."""
-    response = client.post('/predict', data={
-        'sqft': 'invalid_value',
-        'bedrooms': '3',
-        'bathrooms': '2'
-    })
-    assert response.status_code == 200  # Flask should return 200, but with an error message
-    assert b'error' in response.data
+# Pytest functions
+def test_load_data_from_csv():
+    """Test if data is loaded correctly from CSV."""
+    house_sizes, house_prices = load_data_from_csv(TEST_CSV_FILE_PATH)
+    assert len(house_sizes) > 0
+    assert len(house_prices) > 0
+    assert len(house_sizes) == len(house_prices)
+
+def test_model_file_exists():
+    """Test if the model file exists."""
+    assert os.path.exists(MODEL_PATH), "Model file does not exist"
+
+def test_evaluate_model():
+    """Test if the model evaluation runs without errors and returns expected types."""
+    mse, r2 = evaluate_model()
+    assert isinstance(mse, float)
+    assert isinstance(r2, float)
+    assert 0 <= r2 <= 1, "R2 score should be between 0 and 1"
+
+if _name_ == "_main_":
+    evaluate_model()
