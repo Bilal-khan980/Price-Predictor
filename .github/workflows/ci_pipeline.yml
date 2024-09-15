@@ -34,7 +34,7 @@ jobs:
 
       - name: Train model and generate test data
         run: |
-          python main.py  # This will train the model using house_data.csv
+          python main.py 
 
       - name: Run lint and tests
         run: |
