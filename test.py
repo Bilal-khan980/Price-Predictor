@@ -1,7 +1,9 @@
 import requests
 
+
 # Assuming Flask server is running locally on port 5000
 url = 'http://localhost:5000/predict'
+
 
 def test_predict():
     # Input data for testing
@@ -19,6 +21,7 @@ def test_predict():
     
     # Assert that the response contains the predicted price
     assert "Predicted House Price" in response.text
+
 
 if __name__ == "__main__":
     test_predict()
