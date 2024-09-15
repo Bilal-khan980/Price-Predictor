@@ -14,11 +14,11 @@ MODEL_FILE_PATH = 'trained_model.pkl'
 try:
     if os.path.exists(MODEL_FILE_PATH):
         with open(MODEL_FILE_PATH, 'rb') as model_file:
-            model = pickle.load(model_file)
+            MODEL = pickle.load(model_file)
     else:
         raise FileNotFoundError("Model file not found. Please run 'main.py' to train the model.")
 except (FileNotFoundError, IOError, pickle.UnpicklingError):
-    model = None
+    MODEL = None
 
 
 @app.route('/')
@@ -37,7 +37,7 @@ def predict():
     Returns:
         json: The predicted price or an error message.
     """
-    if model is None:
+    if MODEL is None:
         return jsonify({"error": "Model is not loaded. Train the model first."}), 500
 
     try:
@@ -50,7 +50,7 @@ def predict():
             raise ValueError("Invalid input values for size, bedrooms, or bathrooms.")
 
         feature_array = np.array([[feature_size, feature_bedrooms, feature_bathrooms]])
-        prediction = model.predict(feature_array)[0]
+        prediction = MODEL.predict(feature_array)[0]
 
         return jsonify({"predicted_price": prediction})
 
