@@ -10,11 +10,15 @@ model = joblib.load('house_price_model.pkl')
 
 # Define the homepage route
 @app.route('/')
+
+
 def home():
     return render_template('index.html')
 
 # Predict price based on input data
 @app.route('/predict', methods=['POST'])
+
+
 def predict():
     try:
         # Get form data
