@@ -6,13 +6,18 @@ import pandas as pd
 # Initialize Flask app
 app = Flask(__name__)
 
+
+
 # Load the trained model
 model = joblib.load('house_price_model.pkl')
+ 
 
 # Define the homepage route
 @app.route('/')
 def home():
     return render_template('index.html')
+
+
 
 # Predict price based on input data
 @app.route('/predict', methods=['POST'])
@@ -31,6 +36,9 @@ def predict():
     
     except Exception as e:
         return jsonify({'error': str(e)})
+
+
+
 
 # Run the app
 if __name__ == "__main__":
