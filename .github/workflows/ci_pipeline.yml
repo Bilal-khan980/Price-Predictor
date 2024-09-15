@@ -49,6 +49,15 @@ jobs:
         run: |
           pip install -r requirements.txt
 
+      - name: Run Flask server
+        run: |
+          flask run --host=0.0.0.0 --port=5000 &
+        env:
+          FLASK_APP: app.py  # Set this to your Flask app file path
+
+      - name: Wait for Flask server to start
+        run: sleep 10  # Wait for the server to fully start
+
       - name: Run Unit Tests
         run: |
           pytest test.py
