@@ -49,18 +49,21 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: Run Flask server
+      - name: Start Flask server
         run: |
-          nohup flask run --host=0.0.0.0 --port=5000 &  # Start Flask server in background
+          nohup flask run --host=0.0.0.0 --port=5000 > flask.log 2>&1 &  # Start Flask server in background
         env:
           FLASK_APP: app.py  # Set this to your Flask app file path
 
       - name: Wait for Flask server to be ready
         run: |
           for i in {1..30}; do
-            curl -s http://localhost:5000/predict && break
+            if curl -s http://localhost:5000/ > /dev/null; then
+              echo "Flask server is up!"
+              break
+            fi
             echo "Waiting for Flask server..."
-            sleep 2
+            sleep 5
           done
 
       - name: Run Unit Tests
