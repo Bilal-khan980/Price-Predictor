@@ -6,7 +6,7 @@ import pickle
 import pandas as pd
 from sklearn.metrics import mean_squared_error, r2_score
 
-MODEL_PATH = 'model.pkl'
+MODEL_PATH = 'house_price_model.pkl'  # Update to correct model path
 TEST_CSV_FILE_PATH = 'house_test_data.csv'
 
 def load_data_from_csv(file_path):
@@ -62,5 +62,5 @@ def test_evaluate_model():
     assert isinstance(r2, float)
     assert 0 <= r2 <= 1, "R2 score should be between 0 and 1"
 
-if _name_ == "_main_":
+if __name__ == "__main__":  # Fixed name here
     evaluate_model()

@@ -28,10 +28,8 @@ jobs:
 
     - name: Run tests
       run: |
-        # Run pytest to test Flask API
         pytest test.py
 
     - name: Test Flask App
       run: |
-        # Test if the Flask app runs correctly
         python -m pytest --maxfail=1 --disable-warnings -v
