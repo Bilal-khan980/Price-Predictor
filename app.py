@@ -18,7 +18,7 @@ def predict():
     try:
         # Extract features from the form
         features = [float(x) for x in request.form.values()]
-        
+
         # Ensure the input is formatted correctly as a DataFrame
         columns = ['sqft', 'bedrooms', 'bathrooms']
         final_features = pd.DataFrame([features], columns=columns)
