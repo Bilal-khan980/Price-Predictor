@@ -44,7 +44,7 @@ def evaluate_trained_model():
     predictions = trained_model.predict(test_features)
     mse_value = mean_squared_error(test_labels, predictions)
     r2_value = r2_score(test_labels, predictions) 
-  
+
     return mse_value, r2_value
 
 
