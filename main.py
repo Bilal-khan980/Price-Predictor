@@ -29,4 +29,6 @@ def build_and_train_model():
 
 
 if __name__ == "__main__":
+    print("Training Model")
     build_and_train_model()
+    print ("Model Trained")
