@@ -76,4 +76,6 @@ def test_evaluate_trained_model():
 
 
 if __name__ == "__main__":
+    print("Model Training Start)
     evaluate_trained_model()
+    print ("Model Training Done)      
