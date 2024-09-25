@@ -22,7 +22,7 @@ pipeline {
         stage('Build Model') {
             steps {
                 // Train the model (if training is part of deployment)
-                sh 'python train_model.py'
+                sh 'python main.py'
             }
         }
         stage('Deploy to Production') {
