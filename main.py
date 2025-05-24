@@ -10,7 +10,7 @@ DATA_FILE_PATH = 'house_data.csv'
 
 
 def fetch_data(file_path):
-    """Loads housing data from a CSV file."""
+    
     dataset = pd.read_csv(file_path)
     features = dataset[['Size', 'Bedrooms', 'Bathrooms']].values
     labels = dataset['Price'].values
@@ -18,7 +18,7 @@ def fetch_data(file_path):
 
 
 def build_and_train_model():
-    """Builds and trains a linear regression model on the housing dataset."""
+   
     feature_data, target_values = fetch_data(DATA_FILE_PATH)
 
     regressor = LinearRegression()
